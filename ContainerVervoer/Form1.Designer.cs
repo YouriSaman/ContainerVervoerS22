@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.lblOverGebleven = new System.Windows.Forms.Label();
-            this.lBOvergeblevenContainers = new System.Windows.Forms.ListBox();
             this.lblTotaalGeplaatstGewicht = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.lblGewichtRechts = new System.Windows.Forms.Label();
@@ -66,6 +65,7 @@
             this.btnReset = new System.Windows.Forms.Button();
             this.lBContainers = new System.Windows.Forms.ListBox();
             this.lBSchip = new System.Windows.Forms.ListBox();
+            this.lBOvergeblevenContainers = new System.Windows.Forms.ListBox();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.upDownBreedte)).BeginInit();
@@ -85,16 +85,6 @@
             this.lblOverGebleven.TabIndex = 25;
             this.lblOverGebleven.Text = "...";
             this.lblOverGebleven.Visible = false;
-            // 
-            // lBOvergeblevenContainers
-            // 
-            this.lBOvergeblevenContainers.FormattingEnabled = true;
-            this.lBOvergeblevenContainers.Items.AddRange(new object[] {
-            "(optioneel om nog de overgebleven containers te laten zien...)"});
-            this.lBOvergeblevenContainers.Location = new System.Drawing.Point(13, 559);
-            this.lBOvergeblevenContainers.Name = "lBOvergeblevenContainers";
-            this.lBOvergeblevenContainers.Size = new System.Drawing.Size(305, 17);
-            this.lBOvergeblevenContainers.TabIndex = 24;
             // 
             // lblTotaalGeplaatstGewicht
             // 
@@ -152,7 +142,7 @@
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Location = new System.Drawing.Point(13, 329);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(305, 185);
+            this.groupBox3.Size = new System.Drawing.Size(200, 185);
             this.groupBox3.TabIndex = 17;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Configuratie";
@@ -284,16 +274,36 @@
             // upDownBreedte
             // 
             this.upDownBreedte.Location = new System.Drawing.Point(115, 81);
+            this.upDownBreedte.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.upDownBreedte.Name = "upDownBreedte";
             this.upDownBreedte.Size = new System.Drawing.Size(75, 20);
             this.upDownBreedte.TabIndex = 6;
+            this.upDownBreedte.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // upDownLengte
             // 
             this.upDownLengte.Location = new System.Drawing.Point(13, 81);
+            this.upDownLengte.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.upDownLengte.Name = "upDownLengte";
             this.upDownLengte.Size = new System.Drawing.Size(75, 20);
             this.upDownLengte.TabIndex = 5;
+            this.upDownLengte.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // label11
             // 
@@ -495,14 +505,22 @@
             this.lBSchip.Size = new System.Drawing.Size(313, 563);
             this.lBSchip.TabIndex = 26;
             // 
+            // lBOvergeblevenContainers
+            // 
+            this.lBOvergeblevenContainers.FormattingEnabled = true;
+            this.lBOvergeblevenContainers.Location = new System.Drawing.Point(248, 332);
+            this.lBOvergeblevenContainers.Name = "lBOvergeblevenContainers";
+            this.lBOvergeblevenContainers.Size = new System.Drawing.Size(313, 251);
+            this.lBOvergeblevenContainers.TabIndex = 27;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(996, 606);
+            this.Controls.Add(this.lBOvergeblevenContainers);
             this.Controls.Add(this.lBSchip);
             this.Controls.Add(this.lblOverGebleven);
-            this.Controls.Add(this.lBOvergeblevenContainers);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
@@ -528,7 +546,6 @@
         #endregion
 
         private System.Windows.Forms.Label lblOverGebleven;
-        private System.Windows.Forms.ListBox lBOvergeblevenContainers;
         private System.Windows.Forms.Label lblTotaalGeplaatstGewicht;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label lblGewichtRechts;
@@ -565,6 +582,7 @@
         private System.Windows.Forms.NumericUpDown upDownLengte;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ListBox lBOvergeblevenContainers;
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,162 +9,132 @@ namespace ContainerVervoer
 {
     public class PlaceService
     {
-        private ConfigureService configureService;
-        private BalanceService balanceService;
+        ConfigureService configureService = new ConfigureService();
+        PlaceCheckService placeCheckService = new PlaceCheckService();
 
-        public PlaceService()
+        public Ship PlaceContainers(Ship ship, List<Container> containers)
         {
-            configureService = new ConfigureService();
-            balanceService = new BalanceService();
-        }
-
-        public Ship PlaatsContainers(List<Container> containers, Ship ship)
-        {
-            //Lijsten aan maken om de containers te sorteren op soort
-            List<Container> valuableContainers = new List<Container>();
-            List<Container> cooledContainers = new List<Container>();
-            List<Container> standardContainers = new List<Container>();
-
             foreach (var container in containers)
             {
-                if (container.Valuable)
+                if (container.Cooled)
                 {
-                    valuableContainers.Add(container);
+                    PlaceCooledContainer(container, ship);
                 }
-                else if (container.Cooled)
+                else if (container.Valuable)
                 {
-                    cooledContainers.Add(container);
+                    PlaceValuableContainer(container, ship);
                 }
-                else
+                else if (!container.Valuable && !container.Cooled)
                 {
-                    standardContainers.Add(container);
+                    PlaceStandardContainer(container, ship);
                 }
-            }
-
-            //Plaats containers per soort
-            PlaatsWaardevolleContainers(valuableContainers, ship);
-
-            PlaatsGekoeldeContainers(cooledContainers, ship);
-
-            PlaatsStandaardContainers(standardContainers, ship);
-
-            //Balanseren tot balans klopt!
-            while (balanceService.BalansCheck(ship) == false)
-            {
-                ship = balanceService.BalanseerSchip(ship);
             }
 
             return ship;
         }
 
-        public void PlaatsWaardevolleContainers(List<Container> valuableContainers, Ship ship)
+        public void PlaceCooledContainer(Container container, Ship ship) //Test verschil tussen cooled en normal
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < ship.Width; i++) //First row of ship
             {
-                if (valuableContainers.Count > 0)
+                if (ContainerIsPlaced(ship, container, i))
                 {
-                    if (i != 2 && i != 3) //Plaatsen[0 en 1] zijn vooraan en [4 en 5] achteraan
-                    {
-                        var valuableContainer = valuableContainers.First();
-                        ship.Places[i].Containers.Add(valuableContainer);
-                        ship.Places[i].Weight += valuableContainer.Weight;
-                        ship.AmountOfLeftoverContainers -= 1;
-                        valuableContainers.Remove(valuableContainer);
-                    }
-                }
-            }
-
-            //plaatsen[1, 5] zijn links en nu gevuld met de eventuele waardevolle containers die nu het gewicht voor de linkse kant zorgen
-            ship.WeightLeft += ship.Places[1].Weight + ship.Places[5].Weight;
-            //plaatsen[0, 4] zijn rechts en nu gevuld met de eventuele waardevolle containers die nu het gewicht voor de rechtse kant zorgen
-            ship.WeightRight += ship.Places[0].Weight + ship.Places[4].Weight;
-        }
-
-        public void PlaatsGekoeldeContainers(List<Container> gekoeldeContainers, Ship ship)
-        {
-            if (gekoeldeContainers.Count > 0)
-            {
-                foreach (var gekoeldContainer in gekoeldeContainers)
-                {
-                    if (ship.WeightLeft >= ship.WeightRight)
-                    {
-                        //Kijken of de containers die al geslecteerd zijn niet overbelastend zijn voor de nieuwe container, daarna plaatsen
-                        if (configureService.MaxGewichtOpContainer(ship, 0)) //Plaats 0 is vooraan
-                        {
-                            ship = VoegContainerRechtsToe(ship, gekoeldContainer, 0);
-                        }
-                    }
-                    //Kijken of de containers die al geslecteerd zijn niet overbelastend zijn voor de nieuwe container, daarna plaatsen
-                    else
-                    {
-                        if (configureService.MaxGewichtOpContainer(ship, 1)) //Plaats 1 is vooraan
-                        {
-                            ship = VoegContainerLinksToe(ship, gekoeldContainer, 1);
-                        }
-                    }
+                    break;
                 }
             }
         }
 
-        public void PlaatsStandaardContainers(List<Container> standaardContainers, Ship ship)
+        public void PlaceStandardContainer(Container container, Ship ship)
         {
-            if (standaardContainers.Count > 0)
+            for (int i = 0; i < ship.Places.Count; i++) //All possible places
             {
-                foreach (var standaardContainer in standaardContainers)
+                //Try to place container on a possible place
+                if (ContainerIsPlaced(ship, container, i))
                 {
-                    for (int i = 0; i < ship.Places.Count; i++)
+                    break;
+                }
+            }
+        }
+
+        public void PlaceValuableContainer(Container container, Ship ship)
+        {
+            for (int i = 0; i < ship.Places.Count; i++)
+            {
+                if (!placeCheckService.PlaceDoesContainOtherValuable(ship.Places[i].Containers))
+                {
+                    if (placeCheckService.ContainerCanBePlacedOnOthers(container, ship, i))
                     {
                         if (ship.WeightLeft >= ship.WeightRight)
                         {
-                            if (i == 4 || i == 2 || i == 0) //Eerst achterste rij ter compensatie met (eventueel geplaatste) gekoelde containers
+                            if (ship.Places[i].Placement == Place.PlacementEnum.Right)
                             {
-                                if (configureService.MaxGewichtOpContainer(ship, i))
+                                if (placeCheckService.ValuableContainerIsReaceable(ship, i))
                                 {
-                                    ship = VoegContainerRechtsToe(ship, standaardContainer, i);
+                                    PlaceContainer(container, ship, i);
+                                    ship.WeightRight += container.Weight;
                                     break;
                                 }
                             }
                         }
-
-                        else if (ship.WeightLeft < ship.WeightRight)
+                        else if (ship.WeightRight > ship.WeightLeft)
                         {
-                            if (i == 5 || i == 3 || i == 1) //Eerst achterste rij ter compensatie met (eventueel geplaatste) gekoelde containers
+                            if (ship.Places[i].Placement == Place.PlacementEnum.Left)
                             {
-                                if (configureService.MaxGewichtOpContainer(ship, i))
+                                if (placeCheckService.ValuableContainerIsReaceable(ship, i))
                                 {
-                                    ship = VoegContainerLinksToe(ship, standaardContainer, i);
+                                    PlaceContainer(container, ship, i);
+                                    ship.WeightLeft += container.Weight;
                                     break;
                                 }
                             }
+                        }
+                        else if(ship.Places[i].Placement == Place.PlacementEnum.Middle)
+                        {
+                            PlaceContainer(container, ship, i);
                         }
                     }
                 }
             }
         }
 
-        public Ship VoegContainerToe(Ship ship, Container container, int plaatsNr)
+        public bool ContainerIsPlaced(Ship ship, Container container, int placeNumber)
         {
-            ship.Places[plaatsNr].Containers.Add(container);
-            ship.Places[plaatsNr].Weight += container.Weight;
-            ship.AmountOfLeftoverContainers -= 1;
+            if (placeCheckService.ContainerCanBePlacedOnOthers(container, ship, placeNumber))
+            {
+                if (ship.WeightLeft >= ship.WeightRight)
+                {
+                    if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Right)
+                    {
+                        PlaceContainer(container, ship, placeNumber);
+                        ship.WeightRight += container.Weight;
+                        return true;
+                    }
+                }
+                else if (ship.WeightRight > ship.WeightLeft)
+                {
+                    if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Left)
+                    {
+                        PlaceContainer(container, ship, placeNumber);
+                        ship.WeightLeft += container.Weight;
+                        return true;
+                    }
+                }
+                else if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Middle)
+                {
+                    PlaceContainer(container, ship, placeNumber);
+                    return true;
+                }
+            }
 
-            return ship;
+            return false;
         }
 
-        public Ship VoegContainerLinksToe(Ship ship, Container container, int plaatsNr)
+        public void PlaceContainer(Container container, Ship ship, int placeNumber)
         {
-            ship = VoegContainerToe(ship, container, plaatsNr);
-            ship.WeightLeft += container.Weight;
-
-            return ship;
-        }
-
-        public Ship VoegContainerRechtsToe(Ship ship, Container container, int plaatsNr)
-        {
-            ship = VoegContainerToe(ship, container, plaatsNr);
-            ship.WeightRight += container.Weight;
-
-            return ship;
+            ship.Places[placeNumber].Containers.Add(container);
+            ship.Places[placeNumber].Weight += container.Weight;
+            ship.Places[placeNumber].Height += 1;
+            //configureService.Containers.Remove(container);
         }
     }
 }

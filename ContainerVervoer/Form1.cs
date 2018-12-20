@@ -18,22 +18,22 @@ namespace ContainerVervoer
 
         public Form1()
         {
+            InitializeComponent();
             configureService = new ConfigureService();
             placeService = new PlaceService();
-            InitializeComponent();
         }
 
         private void btnSchipGewicht_Click(object sender, EventArgs e)
         {
-            int maxGewicht = Convert.ToInt32(upDownSchipGewicht.Value);
+            int maxWeight = Convert.ToInt32(upDownSchipGewicht.Value);
             int length = Convert.ToInt32(upDownLengte.Value);
             int width = Convert.ToInt32(upDownBreedte.Value);
-            ship = configureService.NewShip(maxGewicht, length, width);
+            ship = configureService.NewShip(maxWeight, length, width);
 
             lblGewichtContainers.Text = "0";
             lblAantalContainers.Text = "0";
-            lblMaxGewicht.Text = Convert.ToString(maxGewicht);
-            lblMinGewicht.Text = Convert.ToString(ship.MinWeight);
+            lblMaxGewicht.Text = Convert.ToString(maxWeight);
+            lblMinGewicht.Text = Convert.ToString(configureService.CalcMinWeight(maxWeight));
             btnNieuwSchip.Enabled = false;
             btnVoegContainerToe.Enabled = true;
             btnDeleteContainer.Enabled = true;
@@ -55,25 +55,7 @@ namespace ContainerVervoer
             if (rBtnGekoeld.Checked) cooled = true;
             var newContainer = new Container(weight, valuable, cooled);
 
-            //Aantal waardevolle containers tellen
-            var amountValuable = configureService.CountAmountOfValuableContainers();
-
-            //Kijken of de container nog op het schip mag en kan
-            if (newContainer.Valuable == true)
-            {
-                if (amountValuable + 1 <= 4) //Kijken of het maximum aantal waardevolle containers word overschreden als deze container ook word toegevoegd
-                {
-                    ToevoegingContainerMetCheck(newContainer);
-                }
-                else
-                {
-                    MessageBox.Show("Het maximum van 4 waardevolle containers word hierbij overschreden!");
-                }
-            }
-            else
-            {
-                ToevoegingContainerMetCheck(newContainer);
-            }
+            ToevoegingContainerMetCheck(newContainer);
         }
 
         private void ToevoegingContainerMetCheck(Container newContainer)
@@ -104,7 +86,7 @@ namespace ContainerVervoer
 
         private void btnStartVerdeling_Click(object sender, EventArgs e)
         {
-            //ship = placeService.PlaatsContainers(configureService.Containers, ship); //service 'stuurt' schip terug na plaatsen met de daarbij behorende methodes
+            ship = placeService.PlaceContainers(ship, configureService.Containers); //service 'stuurt' schip terug na plaatsen met de daarbij behorende methodes
 
             PlacesToListBox();
 
@@ -115,18 +97,25 @@ namespace ContainerVervoer
 
         public void PlacesToListBox()
         {
-            lBSchip.DataSource = ship.Places[0].Containers;
+            foreach (var place in ship.Places)
+            {
+                lBSchip.Items.Add(place);
+                foreach (var container in place.Containers)
+                {
+                    lBSchip.Items.Add(container);
+                }
+
+                lBSchip.Items.Add("");
+            }
+
+            if (configureService.Containers != null)
+            {
+                lBOvergeblevenContainers.DataSource = configureService.Containers;
+            }
         }
 
         public void ChangeLablesAfterPlacement()
         {
-            //if (ship.AmountOfContainers != 0)
-            //{
-            //    lblOverGebleven.Visible = true;
-            //    lblOverGebleven.Text = "Er zijn nog " + Convert.ToString(ship.AmountOfLeftoverContainers) +
-            //                           " containers over die niet worden of zullen geplaatst";
-            //}
-
             lblBalans.Text = Convert.ToString(ship.Balance);
             lblGewichtLinks.Text = Convert.ToString(ship.WeightLeft);
             lblGewichtRechts.Text = Convert.ToString(ship.WeightRight);

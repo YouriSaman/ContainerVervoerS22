@@ -9,7 +9,6 @@ namespace ContainerVervoer
     public class Ship
     {
         public int MaxWeight { get; set; }
-        public int MinWeight { get; set; }
         public int CurrentWeight { get; set; }
         public int WeightLeft { get; set; }
         public int WeightRight { get; set; }
@@ -17,18 +16,14 @@ namespace ContainerVervoer
         public int AmountOfContainers { get; set; }
         public int AmountOfLeftoverContainers { get; set; }
         public List<Place> Places { get; }
+        public int Width { get; set; }
+        public int Length { get; set; }
 
-        public Ship(int maxWeight, int minWeight, int currentWeight, int weightLeft, int weightRight, decimal balance, int amountOfContainers, int amountOfLeftoverContainers, List<Place> places)
+        //Lege constructor en minder properties
+
+        public Ship()
         {
-            MaxWeight = maxWeight;
-            MinWeight = minWeight;
-            CurrentWeight = currentWeight;
-            WeightLeft = weightLeft;
-            WeightRight = weightRight;
-            Balance = balance;
-            AmountOfContainers = amountOfContainers;
-            AmountOfContainers = amountOfLeftoverContainers;
-            Places = places;
+            Places = new List<Place>();
         }
     }
 }

@@ -17,26 +17,53 @@ namespace ContainerVervoer
 
         public Ship NewShip(int maxWeight, int length, int width)
         {
-            int minWeight = CalculateMinWeight(maxWeight);
-            var places = new List<Place>();
-            int containerAmountOfShip = length * width;
-            for (int i = 0; i < containerAmountOfShip; i++)
+            var ship = new Ship();
+            ship.MaxWeight = maxWeight;
+            ship.Length = length;
+            ship.Width = width;
+            int amountOfPlaces = length * width;
+            int placeId = 1;
+            for (int i = 0; i < amountOfPlaces; i++)
             {
-                places.Add(new Place());
+                ship.Places.Add(new Place{Id = placeId});
+                placeId++;
             }
-            Ship ship = new Ship(maxWeight, minWeight, 0, 0, 0, 0, 0, 0, places);
+
+            int placeNumberAddition = 0;
+            for (int i = 0; i < length; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    if (j < width/2)
+                    {
+                        ship.Places[i+placeNumberAddition].Placement = Place.PlacementEnum.Left;
+                        placeNumberAddition++;
+                    }
+                    else if(width % 2 != 0 && j == width/2)
+                    {
+                        ship.Places[i + placeNumberAddition].Placement = Place.PlacementEnum.Middle;
+                        placeNumberAddition++;
+                    }
+                    else
+                    {
+                        ship.Places[i + placeNumberAddition].Placement = Place.PlacementEnum.Right;
+                        placeNumberAddition++;
+                    }
+                }
+                placeNumberAddition--;
+            }
 
             return ship;
         }
 
-        public int CalculateMinWeight(int maxWeight)
-        {
-            return maxWeight / 2;
-        }
-
         public bool PreventCapsize(Ship ship)
         {
-            return ship.CurrentWeight >= ship.MinWeight;
+            return ship.CurrentWeight >= CalcMinWeight(ship.MaxWeight);
+        }
+
+        public int CalcMinWeight(int maxWeight)
+        {
+            return maxWeight / 2;
         }
 
         /// <summary>
@@ -45,20 +72,6 @@ namespace ContainerVervoer
         public bool MaxWeightContainersSchip(Ship ship, Container newContainer)
         {
             return ship.CurrentWeight + newContainer.Weight <= ship.MaxWeight;
-        }
-
-        public int CountAmountOfValuableContainers()
-        {
-            int amountValuable = 0;
-            foreach (var container in Containers)
-            {
-                if (container.Valuable == true)
-                {
-                    amountValuable++;
-                }
-            }
-
-            return amountValuable;
         }
 
         /// <summary>
