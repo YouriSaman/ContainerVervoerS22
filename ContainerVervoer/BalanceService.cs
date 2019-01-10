@@ -8,7 +8,7 @@ namespace ContainerVervoer
 {
     public class BalanceService
     {
-        public Ship CalculateBalance(Ship ship)
+        public decimal CalculateBalance(Ship ship)
         {
             var right = ship.WeightRight;
             var left = ship.WeightLeft;
@@ -25,9 +25,9 @@ namespace ContainerVervoer
                 balance = balance / left * 100;
             }
 
-            ship.Balance = Math.Round(balance, 2);
+            balance = Math.Round(balance, 2);
 
-            return ship;
+            return balance;
         }
     }
 }

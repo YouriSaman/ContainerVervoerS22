@@ -11,6 +11,7 @@ namespace ContainerVervoer
         public int Weight { get; set; }
         public bool Valuable { get; set; }
         public bool Cooled { get; set; }
+        public int PlacementHeight { get; set; }
 
         public Container(int weight, bool valuable, bool cooled)
         {
@@ -21,7 +22,7 @@ namespace ContainerVervoer
 
         public override string ToString()
         {
-            return "Gewicht= " + Weight + "kg, Waardevol= " + Valuable + ", Gekoeld= " + Cooled;
+            return "Gewicht= " + Weight + "kg, Waardevol= " + Valuable + ", Gekoeld= " + Cooled + ", Hoogte: " + PlacementHeight;
         }
     }
 }

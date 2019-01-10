@@ -9,8 +9,9 @@ namespace ContainerVervoer
 {
     public class PlaceService
     {
-        ConfigureService configureService = new ConfigureService();
-        PlaceCheckService placeCheckService = new PlaceCheckService();
+        private ConfigureService _configureService = new ConfigureService();
+        private PlaceCheckService _placeCheckService = new PlaceCheckService();
+        private AddContainerService _addContainerService = new AddContainerService();
 
         public Ship PlaceContainers(Ship ship, List<Container> containers)
         {
@@ -33,108 +34,94 @@ namespace ContainerVervoer
             return ship;
         }
 
-        public void PlaceCooledContainer(Container container, Ship ship) //Test verschil tussen cooled en normal
+        private void PlaceCooledContainer(Container container, Ship ship)
         {
             for (int i = 0; i < ship.Width; i++) //First row of ship
             {
                 if (ContainerIsPlaced(ship, container, i))
                 {
+                    container.PlacementHeight = ship.Places[i].Height;
                     break;
                 }
             }
         }
 
-        public void PlaceStandardContainer(Container container, Ship ship)
+        private void PlaceStandardContainer(Container container, Ship ship)
         {
             for (int i = 0; i < ship.Places.Count; i++) //All possible places
             {
-                //Try to place container on a possible place
                 if (ContainerIsPlaced(ship, container, i))
                 {
+                    container.PlacementHeight = ship.Places[i].Height;
                     break;
                 }
             }
         }
 
-        public void PlaceValuableContainer(Container container, Ship ship)
+        private void PlaceValuableContainer(Container container, Ship ship)
         {
             for (int i = 0; i < ship.Places.Count; i++)
             {
-                if (!placeCheckService.PlaceDoesContainOtherValuable(ship.Places[i].Containers))
+                if (!_placeCheckService.PlaceDoesContainOtherValuable(ship.Places[i].Containers))
                 {
-                    if (placeCheckService.ContainerCanBePlacedOnOthers(container, ship, i))
+                    if (_placeCheckService.ValuableContainerIsReaceableAfterPlacement(ship, i))
                     {
-                        if (ship.WeightLeft >= ship.WeightRight)
-                        {
-                            if (ship.Places[i].Placement == Place.PlacementEnum.Right)
-                            {
-                                if (placeCheckService.ValuableContainerIsReaceable(ship, i))
-                                {
-                                    PlaceContainer(container, ship, i);
-                                    ship.WeightRight += container.Weight;
-                                    break;
-                                }
-                            }
-                        }
-                        else if (ship.WeightRight > ship.WeightLeft)
-                        {
-                            if (ship.Places[i].Placement == Place.PlacementEnum.Left)
-                            {
-                                if (placeCheckService.ValuableContainerIsReaceable(ship, i))
-                                {
-                                    PlaceContainer(container, ship, i);
-                                    ship.WeightLeft += container.Weight;
-                                    break;
-                                }
-                            }
-                        }
-                        else if(ship.Places[i].Placement == Place.PlacementEnum.Middle)
-                        {
-                            PlaceContainer(container, ship, i);
-                        }
+                        PlaceContainerOnCorrectSide(container, ship, i); //This function is a void so we don't need to return the bool
                     }
                 }
             }
         }
 
-        public bool ContainerIsPlaced(Ship ship, Container container, int placeNumber)
+        private bool ContainerIsPlaced(Ship ship, Container container, int placeNumber)
         {
-            if (placeCheckService.ContainerCanBePlacedOnOthers(container, ship, placeNumber))
+            return PlaceContainerOnCorrectSide(container, ship, placeNumber);
+        }
+
+        private void PlaceContainer(Container container, Ship ship, int placeNumber)
+        {
+            if (ship.Places[placeNumber].Containers.Count > 0 && container.Valuable)
+            {
+                _addContainerService.AddValuableContainer(container, ship, placeNumber);
+                
+            } else
+            {
+                _addContainerService.AddContainerAndChangeWeightOnLowestContainer(container, ship, placeNumber);
+            }
+        }
+
+        ///<summary>
+        ///Place container on the side with the least weight to keep the ship in balance
+        ///</summary>
+        public bool PlaceContainerOnCorrectSide(Container container, Ship ship, int placenumber)
+        {
+            if (_placeCheckService.ContainerCanBePlacedOnOthers(container, ship, placenumber))
             {
                 if (ship.WeightLeft >= ship.WeightRight)
                 {
-                    if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Right)
+                    if (ship.Places[placenumber].Placement == Place.PlacementEnum.Right)
                     {
-                        PlaceContainer(container, ship, placeNumber);
+                        PlaceContainer(container, ship, placenumber);
                         ship.WeightRight += container.Weight;
                         return true;
                     }
                 }
                 else if (ship.WeightRight > ship.WeightLeft)
                 {
-                    if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Left)
+                    if (ship.Places[placenumber].Placement == Place.PlacementEnum.Left)
                     {
-                        PlaceContainer(container, ship, placeNumber);
+                        PlaceContainer(container, ship, placenumber);
                         ship.WeightLeft += container.Weight;
                         return true;
                     }
                 }
-                else if (ship.Places[placeNumber].Placement == Place.PlacementEnum.Middle)
+                else if(ship.Places[placenumber].Placement == Place.PlacementEnum.Middle)
                 {
-                    PlaceContainer(container, ship, placeNumber);
+                    PlaceContainer(container, ship, placenumber);
                     return true;
                 }
             }
 
             return false;
-        }
-
-        public void PlaceContainer(Container container, Ship ship, int placeNumber)
-        {
-            ship.Places[placeNumber].Containers.Add(container);
-            ship.Places[placeNumber].Weight += container.Weight;
-            ship.Places[placeNumber].Height += 1;
-            //configureService.Containers.Remove(container);
         }
     }
 }

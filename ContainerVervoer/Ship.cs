@@ -12,14 +12,11 @@ namespace ContainerVervoer
         public int CurrentWeight { get; set; }
         public int WeightLeft { get; set; }
         public int WeightRight { get; set; }
-        public decimal Balance { get; set; }
         public int AmountOfContainers { get; set; }
         public int AmountOfLeftoverContainers { get; set; }
         public List<Place> Places { get; }
         public int Width { get; set; }
         public int Length { get; set; }
-
-        //Lege constructor en minder properties
 
         public Ship()
         {

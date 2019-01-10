@@ -17,10 +17,12 @@ namespace ContainerVervoer
 
         public Ship NewShip(int maxWeight, int length, int width)
         {
-            var ship = new Ship();
-            ship.MaxWeight = maxWeight;
-            ship.Length = length;
-            ship.Width = width;
+            var ship = new Ship
+            {
+                MaxWeight = maxWeight,
+                Length = length,
+                Width = width
+            };
             int amountOfPlaces = length * width;
             int placeId = 1;
             for (int i = 0; i < amountOfPlaces; i++)
@@ -29,28 +31,28 @@ namespace ContainerVervoer
                 placeId++;
             }
 
-            int placeNumberAddition = 0;
+            int position = 0;
             for (int i = 0; i < length; i++)
             {
                 for (int j = 0; j < width; j++)
                 {
                     if (j < width/2)
                     {
-                        ship.Places[i+placeNumberAddition].Placement = Place.PlacementEnum.Left;
-                        placeNumberAddition++;
+                        ship.Places[i+position].Placement = Place.PlacementEnum.Left;
+                        position++;
                     }
-                    else if(width % 2 != 0 && j == width/2)
+                    else if(width % 2 != 0 && j == width/2) //If width is uneven and middle of width
                     {
-                        ship.Places[i + placeNumberAddition].Placement = Place.PlacementEnum.Middle;
-                        placeNumberAddition++;
+                        ship.Places[i + position].Placement = Place.PlacementEnum.Middle;
+                        position++;
                     }
                     else
                     {
-                        ship.Places[i + placeNumberAddition].Placement = Place.PlacementEnum.Right;
-                        placeNumberAddition++;
+                        ship.Places[i + position].Placement = Place.PlacementEnum.Right;
+                        position++;
                     }
                 }
-                placeNumberAddition--;
+                position--;
             }
 
             return ship;
@@ -66,20 +68,9 @@ namespace ContainerVervoer
             return maxWeight / 2;
         }
 
-        /// <summary>
-        /// Word met het toevoegen van een nieuwe container het maximum niet overschreden
-        /// </summary>
         public bool MaxWeightContainersSchip(Ship ship, Container newContainer)
         {
             return ship.CurrentWeight + newContainer.Weight <= ship.MaxWeight;
-        }
-
-        /// <summary>
-        /// Mag niet meer dan 120000 kg op de container
-        /// </summary>
-        public bool MaxGewichtOpContainer(Ship ship, int plaatsNr)
-        {
-            return ship.Places[plaatsNr].Weight <= 120000;
         }
     }
 }

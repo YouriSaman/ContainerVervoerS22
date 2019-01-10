@@ -15,12 +15,15 @@ namespace ContainerVervoer
         private Ship ship;
         private ConfigureService configureService;
         private PlaceService placeService;
+        private BalanceService balanceService;
+        private SortingService sortingService = new SortingService();
 
         public Form1()
         {
             InitializeComponent();
             configureService = new ConfigureService();
             placeService = new PlaceService();
+            balanceService = new BalanceService();
         }
 
         private void btnSchipGewicht_Click(object sender, EventArgs e)
@@ -71,7 +74,6 @@ namespace ContainerVervoer
                 lBContainers.Items.Add(newContainer.ToString());
                 lblAantalContainers.Text = Convert.ToString(lBContainers.Items.Count);
                 ship.AmountOfContainers = lBContainers.Items.Count;
-                ship.AmountOfLeftoverContainers = lBContainers.Items.Count;
             }
             else
             {
@@ -86,7 +88,7 @@ namespace ContainerVervoer
 
         private void btnStartVerdeling_Click(object sender, EventArgs e)
         {
-            ship = placeService.PlaceContainers(ship, configureService.Containers); //service 'stuurt' schip terug na plaatsen met de daarbij behorende methodes
+            ship = placeService.PlaceContainers(ship, configureService.Containers);
 
             PlacesToListBox();
 
@@ -100,23 +102,21 @@ namespace ContainerVervoer
             foreach (var place in ship.Places)
             {
                 lBSchip.Items.Add(place);
-                foreach (var container in place.Containers)
+
+                place.Containers = sortingService.SortContainers(place.Containers);
+
+                foreach (var container in place.Containers) //First show the heighest container (lowest height) and repeat till lowest container is shown
                 {
                     lBSchip.Items.Add(container);
                 }
 
                 lBSchip.Items.Add("");
             }
-
-            if (configureService.Containers != null)
-            {
-                lBOvergeblevenContainers.DataSource = configureService.Containers;
-            }
         }
 
         public void ChangeLablesAfterPlacement()
         {
-            lblBalans.Text = Convert.ToString(ship.Balance);
+            lblBalans.Text = Convert.ToString(balanceService.CalculateBalance(ship));
             lblGewichtLinks.Text = Convert.ToString(ship.WeightLeft);
             lblGewichtRechts.Text = Convert.ToString(ship.WeightRight);
             lblTotaalGeplaatstGewicht.Text = Convert.ToString(ship.WeightLeft + ship.WeightRight);

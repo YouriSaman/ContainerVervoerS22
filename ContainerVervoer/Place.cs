@@ -11,6 +11,7 @@ namespace ContainerVervoer
         public int Id { get; set; }
         public List<Container> Containers { get; set; }
         public int Weight { get; set; }
+        public int WeightOnLowestContainer { get; set; }
         public int Height { get; set; }
         public enum PlacementEnum
         {
@@ -25,7 +26,7 @@ namespace ContainerVervoer
 
         public override string ToString()
         {
-            return "Place " + Id;
+            return "Place " + Id + " Total weight: " + Weight + " Weight on lowest container: " + WeightOnLowestContainer;
         }
     }
 }

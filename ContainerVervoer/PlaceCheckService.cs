@@ -8,25 +8,26 @@ namespace ContainerVervoer
 {
     public class PlaceCheckService
     {
-        public bool ValuableContainerIsReaceable(Ship ship, int placeNumber)
+        public bool ValuableContainerIsReaceableAfterPlacement(Ship ship, int placeNumber)
         {
             if (placeNumber - ship.Width > 0)
             {
+                //If placement height is heigher than the row after that place
                 if (ship.Places[placeNumber].Height + 1 > ship.Places[placeNumber - ship.Width - 1].Height)
                 {
-                    return true;
+                    return false;
                 }
             }
-            else if (ship.Places[placeNumber].Height + 1 > ship.Places[placeNumber + ship.Width - 1].Height)
+            else if (placeNumber > ship.Width && ship.Places[placeNumber].Height + 1 > ship.Places[placeNumber + ship.Width - 1].Height)
             {
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         public bool ContainerCanBePlacedOnOthers(Container container, Ship ship, int placeNumber)
         {
-            return (ship.Places[placeNumber].Weight += container.Weight) <= 120000;
+            return (ship.Places[placeNumber].Weight + container.Weight) <= 120000;
         }
 
         public bool PlaceDoesContainOtherValuable(List<Container> containers)
@@ -35,11 +36,11 @@ namespace ContainerVervoer
             {
                 if (container.Valuable)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
     }
 }

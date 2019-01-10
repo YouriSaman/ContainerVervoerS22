@@ -65,7 +65,6 @@
             this.btnReset = new System.Windows.Forms.Button();
             this.lBContainers = new System.Windows.Forms.ListBox();
             this.lBSchip = new System.Windows.Forms.ListBox();
-            this.lBOvergeblevenContainers = new System.Windows.Forms.ListBox();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.upDownBreedte)).BeginInit();
@@ -275,7 +274,7 @@
             // 
             this.upDownBreedte.Location = new System.Drawing.Point(115, 81);
             this.upDownBreedte.Minimum = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             0});
@@ -283,7 +282,7 @@
             this.upDownBreedte.Size = new System.Drawing.Size(75, 20);
             this.upDownBreedte.TabIndex = 6;
             this.upDownBreedte.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             0});
@@ -492,33 +491,24 @@
             // lBContainers
             // 
             this.lBContainers.FormattingEnabled = true;
-            this.lBContainers.Location = new System.Drawing.Point(248, 23);
+            this.lBContainers.Location = new System.Drawing.Point(245, 22);
             this.lBContainers.Name = "lBContainers";
-            this.lBContainers.Size = new System.Drawing.Size(313, 290);
+            this.lBContainers.Size = new System.Drawing.Size(261, 563);
             this.lBContainers.TabIndex = 15;
             // 
             // lBSchip
             // 
             this.lBSchip.FormattingEnabled = true;
-            this.lBSchip.Location = new System.Drawing.Point(581, 22);
+            this.lBSchip.Location = new System.Drawing.Point(536, 23);
             this.lBSchip.Name = "lBSchip";
-            this.lBSchip.Size = new System.Drawing.Size(313, 563);
+            this.lBSchip.Size = new System.Drawing.Size(367, 563);
             this.lBSchip.TabIndex = 26;
-            // 
-            // lBOvergeblevenContainers
-            // 
-            this.lBOvergeblevenContainers.FormattingEnabled = true;
-            this.lBOvergeblevenContainers.Location = new System.Drawing.Point(248, 332);
-            this.lBOvergeblevenContainers.Name = "lBOvergeblevenContainers";
-            this.lBOvergeblevenContainers.Size = new System.Drawing.Size(313, 251);
-            this.lBOvergeblevenContainers.TabIndex = 27;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(996, 606);
-            this.Controls.Add(this.lBOvergeblevenContainers);
             this.Controls.Add(this.lBSchip);
             this.Controls.Add(this.lblOverGebleven);
             this.Controls.Add(this.groupBox3);
@@ -582,7 +572,6 @@
         private System.Windows.Forms.NumericUpDown upDownLengte;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ListBox lBOvergeblevenContainers;
     }
 }
 
